@@ -456,8 +456,20 @@
         <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#report-the-controller-state">report the controller state</a></dfn></li>
         <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#seek">seek</a></dfn></li>
         <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#media-data">media data</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track">text track</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-cue">text track cue</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-kind">text track kind</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-label">text track label</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-language">text track language</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-mode">text track mode</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-hidden">text track hidden</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-loaded">text track loaded</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-readiness-state">text track readiness state</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#text-track-list-of-cue">text track list of cues</a></dfn></li>
+        <li><dfn><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#time-marches-on">time marches on</a></dfn></li>
         <li><dfn><code><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#htmlmediaelement">HTMLMediaElement</a></code></dfn></li>
         <li><dfn><code><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#mediacontroller">MediaController</a></code></dfn></li>
+        <li><dfn><code><a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#texttrack">TextTrack</a></code></dfn></li>
       </ul>
 
       <p>
@@ -599,6 +611,13 @@
       <p>
         A <a>timing object</a> can have a <dfn>range</dfn>, which is an <code><a>Interval</a></code> object and represents restrictions for the positions of the <a>state vector</a> and a <dfn>current interval timeout</dfn>, which points to a scheduled timeout when set.
       </p>
+      <p>
+        A <a>timing object</a> has a <dfn>list of timing text tracks</dfn>, which is the group of <a title="timing text track">timing text tracks</a> that use the <a>timing object</a> as sequencer (see <a href="#sequencer"></a>). The <a>list of timing text tracks</a> is sorted in the order <a title="timing text track">timing text tracks</a> are associated with the <a>timing object</a>.
+      </p>
+      <p>
+        @@Say that a <a>timing object</a> runs the <a>time marches on</a> algorithm when it is moving. If a new algorithm needs to be created (probably), call it the <dfn>sequencer marches on</dfn> algorithm.
+      </p>
+
       <p>
         A <a>timing object</a> can also have a <dfn>timing provider source</dfn>, which is a <code><a>TimingProvider</a></code> object that encapsulates the logic needed to represent an <a>external timing resource</a>, and a <dfn>last measured time value</dfn> that is the last timestamp value read from the <a>timing provider source</a> and is used to check the monotonicity of the clock exposed by the <a>timing provider source</a>. The <a>timing provider source</a> is initialized once and for all when the <a>timing object</a> is created.
       </p>
@@ -1266,6 +1285,83 @@
         </section>
       </section>
     </section>
+
+
+
+
+
+
+
+    <section>
+      <h3>Sequencer</h3>
+      <p>
+        A <dfn>timing text track</dfn> is a <a>text track</a> that can be associated to a <a>timing object</a>, which acts as sequencer for the <a title="text track cue">text track cues</a> that compose the <a>text track</a>. As such, a <a>timing text track</a> has a <dfn>current sequencer</dfn> which is the <a>timing object</a> that it is associated with.
+      </p>
+      <p class="note">
+        As opposed to a <a>text track</a>, a <a>timing text track</a> is not and cannot be associated to a <a>media element</a>. The interpretation of a <a>timing text track</a>'s <a>text track cue</a> is up to the application in particular.
+      </p>
+      <dl title="interface TimingTextTrack : TextTrack" class="idl">
+        <dt>Constructor()</dt>
+        <dd>
+          Returns a new <code><a>TimingTextTrack</a></code>.
+          <dl class="parameters">
+            <dt>TextTrackKind kind</dt>
+            <dd>The <a>kind of track</a>.</dd>
+            <dt>optional DOMString label = ""</dt>
+            <dd>The <a>text track label</a>.</dd>
+            <dt>optional DOMString language = ""</dt>
+            <dd>The <a>text track language</a>.</dd>
+          </dl>
+        </dd>
+
+        <dt>attribute TimingObject timingsrc</dt>
+        <dd>Get/Set the <code><a>TimingObject</a></code> object associated with this timing text track.</dd>
+      </dl>
+
+      <section>
+        <h3>Procedures</h3>
+
+        <section>
+          <h3>Create a new timing text track</h3>
+          <p>
+            When the <code><a>TimingTextTrack</a></code> constructor is invoked, the <a>user agent</a> MUST run the following steps:
+          </p>
+          <ol>
+            <li>Create a new <code><a>TimingTextTrack</a></code> object.</li>
+            <li>Create a new <a>timing text track</a> corresponding to the new object, and sets its <a>text track kind</a> to <var>kind</var>, its <a>text track label</a> to <var>label</var>, its <var>text track language</var> to language, its <a>text track readiness state</a> to the <a>text track loaded</a> state, its <a>text track mode</a> to the <a>text track hidden</a> mode, and its <a>text track list of cues</a> to an empty list.</li>
+            <li>Return the new <code><a>TimingTextTrack</a></code> object.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h3>Associate with a timing object</h3>
+          <p>
+            The <code>timingsrc</code> attribute, on getting, MUST return the <a>current sequencer</a> of the <a>timing text track</a>, if any, or null otherwise. On setting, the <a>user agent</a> MUST run the following steps:
+          </p>
+          <ol>
+            <li>Let <var>track</var> be the <a>timing text track</a> in question.</li>
+            <li>Let <var>old timing</var> be <var>track</var>'s <a>current sequencer</a>, if any, or null otherwise.</li>
+            <li>Let <var>track</var>'s <a>current sequencer</a> be the new value.</li>
+            <li>Let <var>new timing</var> be <var>track</var>'s <a>current sequencer</a>.</li>
+            <li>
+              If <var>old timing</var> is not null, run the following substeps:
+              <ol>
+                <li>Remove <var>track</var> from <var>timing</var>'s <a>list of timing text tracks</a>.</li>
+                <li>Run the <a>time marches on</a> algorithm on <var>timing</var>.</li>
+              </ol>
+            </li>
+            <li>
+              If <var>new timing</var> is not null, run the following substeps:
+              <ol>
+                <li>Add <var>track</var> to <var>timing</var>'s <a>list of timing text tracks</a>.</li>
+                <li>Run the <a>time marches on</a> algorithm on <var>timing</var>.</li>
+              </ol>
+            </li>
+          </ol>
+        </section>
+      </section>
+    </section>
+
 
     <section class="informative">
       <h3>Implementation guidelines</h3>
